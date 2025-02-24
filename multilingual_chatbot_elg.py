@@ -12,6 +12,7 @@ from transformers import AutoModelForSequenceClassification, AutoTokenizer
 import os
 import torch
 from elg import FlaskService
+import llama_rag
 
 
 path_to_dir = "lesyar/intent_classifier"
@@ -32,10 +33,11 @@ class Multilang_Intent(FlaskService):
     def check_class(self, *classes):
         message = ""
         if "EXPLAIN" in classes:
-            message = (
-                "Thank you for your questions. "
-                "We are looking through our documentation to provide the answer to your enquiry..."
-            )
+            message=llama_rag.run_rag(query=question)       
+            # message = (
+            #     "Thank you for your questions. "
+            #     "We are looking through our documentation to provide the answer to your enquiry..."
+            # )
         elif "OUTPUT" in classes:
             message = (
                 "Thank you for your feedback on our model. "
