@@ -25,15 +25,15 @@ class Multilang_Intent(FlaskService):
     model = AutoModelForSequenceClassification.from_pretrained(path_to_dir)
     tokenizer = AutoTokenizer.from_pretrained(path_to_dir)
     # I am running it on a cpu, but please adjust this of the GPU is needed
-    device = "cpu"
+    device = "gpu"
     label_map = ["GREETING", "BUG", "FEATURE", "OUTPUT", "EXPLAIN", "END"]
     # the match-case comes after python 3.10, so I am not sure it will work in production. Also, my model was trained using python 3.9
     # I therefore will replace keep a non-elegant statement here for now, and replace it if we have python 3.10
 
-    def check_class(self, *classes):
+    def check_class(self, *classes, question):
         message = ""
         if "EXPLAIN" in classes:
-            message=llama_rag.run_rag(query=question)       
+            message=llama_rag.llama_rag.call_rag(question)      
             # message = (
             #     "Thank you for your questions. "
             #     "We are looking through our documentation to provide the answer to your enquiry..."
@@ -81,7 +81,7 @@ class Multilang_Intent(FlaskService):
         pred_classes = [i for (i, v) in zip(self.label_map, list(preds.bool())) if v]
 
         # Here, I will add the translation of each class to a message the user sees. This can change as we review the interface:
-        output = self.check_class(pred_classes)
+        output = self.check_class(pred_classes, input_str)
 
         return input_str, pred_classes, output
         # note: should we return importance scores if the model doesn't detect any class?
